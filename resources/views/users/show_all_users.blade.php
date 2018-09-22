@@ -122,16 +122,6 @@
                                 if(result.hasOwnProperty('success')) {
                                     $("#user_modal").modal('hide');
                                     toastr.success(result.msg);
-                                    var users = result.users;
-                                    $("#users > tr ").remove();
-                                    var output = "";
-                                    var i= 0;
-                                    $.each(users ,function (index,user) {
-                                        i++;
-                                        output +="<td>"+i+"</td><td>"+user.user_name+"</td><td>"+user.email+"</td>";
-                                    });
-                                    console.log(output);
-                                    $("#users_data").bootgrid("reload");
                                 } else if(result.hasOwnProperty('error')) {
                                     toastr.error(result.msg);
                                 }
