@@ -104,7 +104,23 @@ class Users extends Controller
         //
         $response = [];
         try{
+            $user = [];
             $user = UserRepository::get_user($id);
+
+            $profile = $user->profile;
+
+            $user['first_name'] = $profile->first_name;
+            $user['last_name'] = $profile->last_name;
+            $user['contact_no'] = $profile->contact_no;
+            $user['middle_name'] = $profile->middle_name;
+            $user['address'] = $profile->address;
+            $user['profile_image'] = $profile->profile_image;
+            $user['date_of_birth'] = $profile->date_of_birth;
+            $user['country_id'] = $profile->country_id;
+            $user['state_id'] = $profile->state_id;
+            $user['city_id'] = $profile->city_id;
+            $user['gender'] = $profile->gender;
+
             $response['success'] = TRUE;
             $response['user'] = $user;
         } catch (Exception $ex) {
@@ -124,6 +140,9 @@ class Users extends Controller
     public function update(Request $request, $id)
     {
         //
+        print_r($_FILES);
+        die;
+
         $request->validate([
             'user_name'=>'required',
             'email'=>'required',
@@ -131,10 +150,13 @@ class Users extends Controller
         $response = [];
         try{
             $user_data = [];
-            $user_data['id'] = $id;
-            $user_data['user_name'] = $request->input('user_name');
-            $user_data['email'] = $request->input('email');
-            UserRepository::update($user_data);
+            $user_data = $request->all();
+            UserRepository::update($user_data,$id);
+
+            unset($user_data['user_name']);
+            unset($user_data['email']);
+
+            UserRepository::update_profile($user_data,$id);
             $response['success'] = TRUE;
             $response['msg'] = "User Update Successfully";
         } catch (Exception $ex) {

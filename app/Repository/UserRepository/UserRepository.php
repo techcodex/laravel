@@ -12,6 +12,7 @@ namespace App\Repository\UserRepository;
 use Exception;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Session;
+use App\Repository\UserRepository\Profile;
 
 class UserRepository
 {
@@ -24,11 +25,11 @@ class UserRepository
         return $users;
     }
     public static function get_user($id) {
-        $user = User::find($id)->first();
+        $user = User::find($id)->get()->first();
         return $user;
     }
-    public static function update($user_data) {
-        $user = User::find($user_data['id']);
+    public static function update($user_data,$id) {
+        $user = User::find($id);
         if(count($user) == 0) {
             throw new Exception("Invalid user ID");
         }
@@ -42,6 +43,8 @@ class UserRepository
         if(count($user) == 0) {
             throw new Exception("User Not Found");
         }
+        $user->profile->delete();
+
         $user->delete();
 
     }
@@ -72,5 +75,22 @@ class UserRepository
         Session::forget('user_data');
         Session::forget('logged_in');
         Session::flush();
+    }
+    public static function update_profile($user_data,$id) {
+        $format = explode("/",$user_data['date_of_birth']);
+        $new_date = $format[2]."-".$format[0]."-".$format[1];
+//        dd($new_date);
+        $user = User::find($id);
+        $user->profile->first_name = $user_data['first_name'];
+        $user->profile->last_name = $user_data['last_name'];
+        $user->profile->middle_name = $user_data['middle_name'];
+        $user->profile->address = $user_data['address'];
+        $user->profile->gender = $user_data['gender'][0];
+        $user->profile->contact_no = $user_data['contact_no'];
+        $user->profile_date_of_birth = $new_date;
+        $user->profile->country_id = $user_data['country_id'];
+        $user->profile->state_id = $user_data['state_id'];
+        $user->profile->city_id = $user_data['city_id'];
+        $user->profile->save();
     }
 }

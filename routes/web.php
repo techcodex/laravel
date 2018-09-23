@@ -31,3 +31,4 @@ Route::get('/users/logout','Users@logout')->name('user.logout');
 
 Route::post('/location/get_states/','Location@get_states')->name('location.get_states');
 Route::post('/location/get_cities/','Location@get_cities')->name('location.get_cities');
+Route::post('location/get_countries/','Location@get_countries')->name('location.get_country');

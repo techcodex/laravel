@@ -48,4 +48,16 @@ class Location extends Controller
         return $response;
 
     }
+    public static function get_countries() {
+        $response = [];
+        try{
+            $countries = LocationRepository::get_countries();
+            $response['success'] = true;
+            $response['countries'] = $countries;
+        } catch (Exception $ex) {
+            $response['error'] =true;
+            $response['msg'] = $ex->getMessage();
+        }
+        return $response;
+    }
 }
