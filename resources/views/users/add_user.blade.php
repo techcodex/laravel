@@ -32,6 +32,40 @@
                             </div>
                             <span class="help-block text-danger email col-md-offset-2"></span>
                         </div>
+
+                        <div class="form-group">
+                            <label for="middle-name" class="control-label col-md-3 col-sm-3 col-xs-12">Country</label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <select name="country_id" id="country_id" class="form-control">
+                                    <option value="">--Select Country --</option>
+                                    @foreach($countries as $country)
+                                        <option value="{{$country->id}}">{{$country->name}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <span class="help-block text-danger country_id col-md-offset-2"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="middle-name" class="control-label col-md-3 col-sm-3 col-xs-12">State</label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <select name="state_id" id="state_id" class="form-control">
+                                    <option value="">--Select State --</option>
+
+                                </select>
+                            </div>
+                            <span class="help-block text-danger state_id col-md-offset-2"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="middle-name" class="control-label col-md-3 col-sm-3 col-xs-12">City</label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <select name="city_id" id="city_id" class="form-control">
+                                    <option value="">--Select City --</option>
+                                </select>
+                            </div>
+                            <span class="help-block text-danger city_id col-md-offset-2"></span>
+                        </div>
                         <div class="form-group">
                             <label class="control-label col-md-3 col-sm-3 col-xs-12">Password : <span class="required"> *</span>
                             </label>
@@ -75,6 +109,7 @@
                     var result = JSON.parse(jqXHR.responseText);
                     if(result.hasOwnProperty('success')) {
                         toastr.success(result.msg);
+                        $("#user_form").trigger("reset");
                     } else if(result.hasOwnProperty('error')){
                         toastr.error(result.msg);
                     }
@@ -95,6 +130,86 @@
 
         });
       })
+    });
+</script>
+    <script>
+        $(document).ready(function (e) {
+            $("#country_id").change(function (e) {
+                var id = $("#country_id").val();
+                var data = {};
+                data['id'] = id;
+                $.ajax({
+                    url:"{{url('/location/get_states/')}}",
+                    data:data,
+                    dataType:'JSON',
+                    type:'POST',
+                    beforeSend:function (xhr) {
+                        $(".state_id").html(ajax_loader);
+                    },
+                    complete:function(jqXHR,textStatus) {
+                        if(jqXHR.status == 200) {
+                            var result = JSON.parse(jqXHR.responseText);
+                            if(result.hasOwnProperty('success')) {
+                                if(result.hasOwnProperty('states')) {
+                                    var states = result.states;
+                                    var output = "";
+                                    $.each(states,function (index,state) {
+                                        output +="<option value='"+state.id+"'>"+state.name+"</option>";
+                                    });
+                                    $("#state_id > option").remove();
+                                    $("#state_id").append(output);
+                                } else{
+                                    toastr.error("Missing Satates");
+                                }
+                            } else if(result.hasOwnProperty('error')) {
+                                toastr.error(result.msg);
+                            }
+                        } else{
+                            toastr.error("Contact Admin "+jqXHR.status);
+                        }
+                        $(".state_id").html("");
+                    }
+                });
+            })
+        })
+    </script>
+<script>
+    $("#state_id").change(function (e) {
+        var id = $("#state_id").val();
+        var data = {};
+        data['id'] = id;
+       $.ajax({
+           url:"{{url('/location/get_cities/')}}",
+           data:data,
+           dataType:'JSON',
+           type:'POST',
+           beforeSend:function (xhr) {
+                $(".city_id").html(ajax_loader);
+           },
+           complete:function (jqXHR,textStatus) {
+               if(jqXHR.status == 200) {
+                    var result = JSON.parse(jqXHR.responseText);
+                    if(result.hasOwnProperty('success')) {
+                        if(result.hasOwnProperty('cities')) {
+                            var cities = result.cities;
+                            var output = "";
+                            $.each(cities,function (index,city) {
+                                output +="<option value='"+city.id+"'>"+city.name+"</option>";
+                            });
+                            $("#city_id > option~option").remove();
+                            $("#city_id").append(output);
+                        } else{
+                            toastr.error("Missing Cities");
+                        }
+                    } else if(result.hasOwnProperty('error')) {
+                        toastr.error(result.msg);
+                    }
+               } else{
+                    toastr.error("Contact Admin "+jqXHR.status);
+               }
+               $(".city_id").html("");
+           }
+       });
     })
 </script>
 @stop

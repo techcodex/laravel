@@ -9,9 +9,18 @@
     <table class="table table-responsive table-bordered table-striped" id="users_data">
         <thead class="bg-primary text-center">
         <th data-column-id = "id" data-visible="false">ID</th>
-        <th data-column-id="s_no">S.No</th>
-        <th data-column-id="user_name">User Name</th>
-        <th data-column-id="email">Email</th>
+        <th data-column-id="s_no">#</th>
+        <th data-column-id="user_name">U Name</th>
+        <th data-column-id="email">@</th>
+        <th data-column-id="first_name">F</th>
+        <th data-column-id="last_name">L</th>
+        <th data-column-id="middle_name">M</th>
+        <th data-column-id="gender">G</th>
+        <th data-column-id="Address">A</th>
+        <th data-column-id="Country">Con</th>
+        <th data-column-id="state">state</th>
+        <th data-column-id="city">City</th>
+        <th data-column-id="contact_no">Contact</th>
         <th data-column-id="commands" data-formatter="commands" data-sortable="false">Edit / Delete</th>
         </thead>
         <tbody id="users">
@@ -24,6 +33,16 @@
             <td>{{$i++}}</td>
             <td>{{$user->user_name}}</td>
             <td>{{$user->email}}</td>
+            <td>{{$user->profile['first_name']}}</td>
+            <td>{{$user->profile->last_name}}</td>
+            <td>{{$user->profile->middle_name}}</td>
+            <td>{{$user->profile->gender}}</td>
+            <td>{{$user->profile->address}}</td>
+            <td>{{$user->profile->country['name']}}</td>
+            <td>{{$user->profile->state['name']}}</td>
+            <td>{{$user->profile->city['name']}}</td>
+            <td>{{$user->profile->contact_no}}</td>
+
         </tr>
             @endforeach
         </tbody>
@@ -71,7 +90,7 @@
                 "commands": function(column, row)
                 {
                     return "<button type=\"button\" class=\"btn btn-xs btn-default col-md-offset-4 command-edit\" data-row-id=\"" + row.id + "\"><span class=\"fa fa-pencil\"></span></button> "+
-                        "<button type=\"button\" class=\"btn btn-xs btn-default  command-edit\" data-row-id=\"" + row.id + "\"><span class=\"fa fa-trash\"></span></button>";
+                        "<button type=\"button\" class=\"btn btn-xs btn-default  command-delete\" data-row-id=\"" + row.id + "\"><span class=\"fa fa-trash\"></span></button>";
                 },
             }
         }).on("loaded.rs.jquery.bootgrid", function()
@@ -144,6 +163,9 @@
             }).end().find(".command-delete").on("click", function(e)
             {
                 var id = $(this).data("row-id");
+                var url = "{{route('user.delete',':id')}}";
+                url = url.replace(":id",id);
+                window.location.replace(url);
 
             });
 

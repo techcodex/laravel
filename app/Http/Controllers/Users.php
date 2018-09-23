@@ -7,6 +7,9 @@ use Illuminate\Http\Request;
 use Exception;
 use Illuminate\Support\Facades\Hash;
 use App\Repository\UserRepository\UserRepository;
+use Illuminate\Support\Facades\Session;
+use App\Repository\LocationRepository\LocationRepository;
+use App\Repository\UserRepository\Profile;
 class Users extends Controller
 {
     /**
@@ -14,6 +17,11 @@ class Users extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+    public function __construct()
+    {
+        $this->middleware('check_login')->only(['create','show_all_users']);
+    }
+
     public function index()
     {
         //
@@ -31,6 +39,7 @@ class Users extends Controller
             'page_heading'=>'Add New User',
             'page_title'=>'Add New User',
         ];
+        $data['countries'] = LocationRepository::get_countries();
         return view('users.add_user')->with($data);
     }
 
@@ -56,6 +65,14 @@ class Users extends Controller
                 'password'=>Hash::make($request->input('password')),
             ];
             $user = UserRepository::add_user($user_data);
+            $data = $request->all();
+            unset($data['user_name']);
+            unset($data['email']);
+            unset($data['password']);
+            $data['user_id'] = $user->id;
+
+            Profile::create($data);
+
             $response['success'] = true;
             $response['msg'] = "User Added Successfully";
         } catch (Exception $ex) {
@@ -137,6 +154,16 @@ class Users extends Controller
     public function destroy($id)
     {
         //
+        try{
+            UserRepository::delete($id);
+            Session::put('success',"User Delted Successfully");
+            return redirect()->back();
+
+        } catch (Esception $ex) {
+            Session::put('error',$ex->getMessage());
+            return redirect('user.show_all_users');
+        }
+
     }
 
     public function show_all_users() {
@@ -148,5 +175,34 @@ class Users extends Controller
         $data['users'] = $users;
         return view('users.show_all_users')->with($data);
 
+    }
+    public function login() {
+        if(UserRepository::is_logged_in()) {
+            Session::put('error',"Please Logout To view this page");
+            return redirect('/');
+        }
+        return view('users.login');
+    }
+    public function get_login(Request $request) {
+        $request->validate([
+            'email'=>'required|email',
+            'password'=>'required|min:7',
+        ]);
+        $user_data = [
+          'email'=>$request->input('email'),
+          'password'=>$request->input('password'),
+        ];
+        try{
+            UserRepository::get_login($user_data);
+            return redirect('/');
+        } catch (Exception $ex) {
+            Session::put('msg',$ex->getMessage());
+            return redirect()->back();
+        }
+
+    }
+    public function logout() {
+        UserRepository::logout();
+        return redirect()->route('user.login');
     }
 }

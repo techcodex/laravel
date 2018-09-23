@@ -126,6 +126,14 @@
 
 <script src="{{url('public/js/jquery.bootgrid.min.js')}}"></script>
 <script src="{{url('public/js/jquery.bootgrid.fa.min.js')}}"></script>
+<script>
+    @if(Session::has('success'))
+    toastr.success("{{Session::pull('success')}}");
+    @endif
+    @if(Session::has('error'))
+    toastr.error("{{Session::pull('error')}}");
+    @endif
+</script>
 @yield('footer-scripts')
 </body>
 </html>
